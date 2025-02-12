@@ -1,15 +1,21 @@
 import random 
 #####################
 bank = 1000
-#####################
-Cards = ["ace"*4, 2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,"jack"*4,"queen"*4,"king"*4]
+#define the deck of cards
+cards = ["ace"] * 4 + ["jack"] * 4 + ["queen"] * 4 + ["king"] * 4 + list(range(2, 11)) * 4
+#define and set all counters to 0
 card_counter_player = 0
 card_counter_1_player = 0
 card_counter_dealer = 0
 card_counter_dealer_1 = 0
-ace_counter = 0
+ace_counter_player = 0
+ace_counter_dealer = 0
+#set all the card variables to empty
 players_cards = ""
-bust_check = False
+dealers_cards = ""
+#set all the bust checks to false
+bust_check_player = False
+bust_check_dealer = False
 #####################
 
 def main():
@@ -19,48 +25,91 @@ def main():
 
 
 def Stake():
+    #tell user their bank balance and ask for their bet
     bet = input(f"Your current balance is ${bank}. What is your bet")
     if bet == int or float:
         bank = bank - bet
     else:
+    #make sure it is a valid number
         print("Please enter a valid number")
         Stake()
 def deal():
-    players_cards = random.choice(Cards * 2) 
-    dealer_cards = random.choice(Cards * 2)
+    random.shuffle(cards)   
+    players_cards = (", ".join(str(players_cards) for card in random.sample(cards, 2)))
+    dealer_cards = (", ".join(str(dealer_cards) for card in random.sample(cards, 2)))
     print(f"Your cards are {players_cards}")
     print(f"The dealers card is {dealer_cards[0]}")
- #   
-def total_card_number():
-    card_counter = 0
-    card_counter_1_player_ = 0
-    ace_counter = 0
+def ace_check():
+    ace_counter_dealer = False
+    ace_counter_player = False
     for _ in players_cards:
         if _ == "ace":
-                card_counter + 1
-                card_counter_1_player + 11
-        elif _ == str and not"ace":
-            card_counter + 10
-            card_counter_1_player + 10
-        elif _ == int:
-            card_counter + _
-            card_counter_1_player + _
-    if card_counter_1_player > card_counter:
-        ace_counter + 1
+            ace_counter_player = True
+    for _ in dealers_cards:
+        if _ == "ace":
+            ace_counter_dealer = True
 
-def bust_or_not_player():
-    if ace_counter > 0:
-        if card_counter_1_player > 21:
-            if card_counter > 21:
-                print("You bust")
-                bust_check = True
-            else:
-                print(f"You have a total of {card_counter}")
+
+def card_counter():
+    #define all the variables as 0
+    card_counter_player = 0
+    card_counter_1_player = 0
+    card_counter_dealer = 0
+    card_counter_dealer_1 = 0
+    #check if there is an ace in the players hand add 1 to the counter and 11 to the other counter
+    for _ in players_cards:
+        if ace_counter_player == True:
+            card_counter_1_player + 11
+            card_counter_player + 1
+    #check if there is a str in the players hand and add 10 to the counters
+        elif ace_counter_player == False and _ == str:
+            card_counter_1_player + 10
+            card_counter_player + 10
+    #if there is no ace or str add the value of the card to the counter
         else:
-            print(f"You have a total of {card_counter}")
+            card_counter_player + _
+            card_counter_1_player + _
+    for _ in ace_counter_dealer:
+    #check if there is an ace in the dealers hand add 1 to the counter and 11 to the other counter
+        if ace_counter_dealer == True:
+            card_counter_dealer_1 + 11
+            card_counter_dealer + 1
+    #check if there is a str in the dealers hand and add 10 to the counters
+        elif ace_counter_dealer == False and _ == str:
+            card_counter_dealer_1 + 10
+            card_counter_dealer + 10
+    #if there is no ace or str add the value of the card to the counter
+        else:
+            card_counter_dealer + _
+            card_counter_dealer_1 + _
+def bust_check_player():
+    #set the bust check to false
+    bust_check_player = False
+    #check if the player has gone bust
+    if card_counter_1_player > 21:
+        if card_counter_player > 21:
+            print("You have gone bust")
+            bust_check_player = True
+        else: 
+            bust_check_player = False
     else:
-        if card_counter > 21:
-            print("You bust")
-            bust_check = True
+        bust_check_player = False
+def bust_check_dealer():
+    #set the bust check to false
+    bust_check_dealer = False
+    #check if the dealer has gone bust
+    if card_counter_dealer_1 > 21:
+        if card_counter_dealer > 21:
+            print("The dealer has gone bust")
+            bust_check_dealer = True
         else:
-            print(f"You have a total of {card_counter}")
+            bust_check_dealer = False
+    else:
+        bust_check_dealer = False
+
+def player_turn():
+    #ask the player for a hit or stand
+    player_choice = input("Do you want to hit or stand")
+    if player_choice == "hit":
+        players_cards = players_cards + random.sample(cards, 1)
+      #  (", ".join(str(players_cards) for card in random.sample(cards, 1)))
