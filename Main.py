@@ -35,6 +35,8 @@ def main():
 
 
 def Stake():
+    global bank
+    global bet
     #tell user their bank balance and ask for their bet
     bet = input(f"Your current balance is ${bank}. What is your bet")
     if bet == int or float:
@@ -44,6 +46,8 @@ def Stake():
         print("Please enter a valid number")
         Stake()
 def deal():
+    global players_cards
+    global dealers_cards
     random.shuffle(cards)   
     players_cards = (", ".join(str(players_cards) for card in random.sample(cards, 2)))
     dealer_cards = (", ".join(str(dealer_cards) for card in random.sample(cards, 2)))
@@ -59,6 +63,10 @@ def ace_check():
         if _ == "ace":
             ace_counter_dealer = True
 def card_counter():
+    global card_counter_player
+    global card_counter_1_player
+    global card_counter_dealer
+    global card_counter_dealer_1
     #define all the variables as 0
     card_counter_player = 0
     card_counter_1_player = 0
@@ -91,6 +99,9 @@ def card_counter():
             card_counter_dealer + _
             card_counter_dealer_1 + _
 def bust_check_player():
+    global bust_check_player
+    global card_counter_player
+    global card_counter_1_player
     #set the bust check to false
     bust_check_player = False
     #check if the player has gone bust
@@ -102,7 +113,11 @@ def bust_check_player():
             bust_check_player = False
     else:
         bust_check_player = False
+
 def bust_check_dealer():
+    global bust_check_dealer
+    global card_counter_dealer
+    global card_counter_dealer_1
     #set the bust check to false
     bust_check_dealer = False
     #check if the dealer has gone bust
@@ -114,7 +129,12 @@ def bust_check_dealer():
             bust_check_dealer = False
     else:
         bust_check_dealer = False
+
 def player_turn():
+    global players_cards
+    global card_counter_player
+    global card_counter_1_player
+    global bust_check_player
     while True:
         player_choice = input("Do you want to hit or stand? ").lower().strip()
         if player_choice == "hit":
@@ -132,14 +152,20 @@ def player_turn():
         else:
             print("Invalid choice, please choose 'hit' or 'stand'.")
 def dealer_turn():
+    global dealers_cards
+    global card_counter_dealer
+    global card_counter_dealer_1
+    global dealer_check
+    print(f"The dealers cards are {dealers_cards}")
     while dealer_check == 0:
         if card_counter_dealer_1 <= card_counter_1_player:
             if card_counter_dealer_1 < 17:
-            new_card = random.choice(cards)
-            dealers_cards.append(new_card)
-            card_counter()
-            print(f"The dealer drew a {new_card}. The dealers cards are now: {', '.join(map(str, dealers_cards))}")
+                new_card = random.choice(cards)
+                dealers_cards.append(new_card)
+                card_counter()
+                print(f"The dealer drew a {new_card}. The dealers cards are now: {', '.join(map(str, dealers_cards))}")
             bust_check_dealer()
         elif card_counter_dealer_1 > card_counter_1_player:
             print("The dealer won this round.")
             break
+main()
