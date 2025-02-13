@@ -10,6 +10,7 @@ card_counter_dealer = 0
 card_counter_dealer_1 = 0
 ace_counter_player = 0
 ace_counter_dealer = 0
+dealer_check = 0
 #set all the card variables to empty
 players_cards = ""
 dealers_cards = ""
@@ -21,6 +22,15 @@ bust_check_dealer = False
 def main():
     print("Welcome to BlackJack")
     print("You start with $1000")
+    while True:
+        Stake()
+        deal()
+        ace_check()
+        card_counter()
+        bust_check_player()
+        bust_check_dealer()
+        player_turn()
+        dealer_turn()
 
 
 
@@ -48,8 +58,6 @@ def ace_check():
     for _ in dealers_cards:
         if _ == "ace":
             ace_counter_dealer = True
-
-
 def card_counter():
     #define all the variables as 0
     card_counter_player = 0
@@ -106,10 +114,32 @@ def bust_check_dealer():
             bust_check_dealer = False
     else:
         bust_check_dealer = False
-
 def player_turn():
-    #ask the player for a hit or stand
-    player_choice = input("Do you want to hit or stand")
-    if player_choice == "hit":
-        players_cards = players_cards + random.sample(cards, 1)
-      #  (", ".join(str(players_cards) for card in random.sample(cards, 1)))
+    while True:
+        player_choice = input("Do you want to hit or stand? ").lower().strip()
+        if player_choice == "hit":
+            new_card = random.choice(cards)
+            players_cards.append(new_card)
+            print(f"You drew a {new_card}. Your cards are now: {', '.join(map(str, players_cards))}")
+            card_counter()  # Update the card count
+            bust_check_player()  # Check if the player has busted
+            if bust_check_player:
+                print("You lost this round.")
+                break
+        elif player_choice == "stand":
+            print("You chose to stand.")
+            break
+        else:
+            print("Invalid choice, please choose 'hit' or 'stand'.")
+def dealer_turn():
+    while dealer_check == 0:
+        if card_counter_dealer_1 <= card_counter_1_player:
+            if card_counter_dealer_1 < 17:
+            new_card = random.choice(cards)
+            dealers_cards.append(new_card)
+            card_counter()
+            print(f"The dealer drew a {new_card}. The dealers cards are now: {', '.join(map(str, dealers_cards))}")
+            bust_check_dealer()
+        elif card_counter_dealer_1 > card_counter_1_player:
+            print("The dealer won this round.")
+            break
