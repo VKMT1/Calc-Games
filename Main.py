@@ -1,171 +1,127 @@
-import random 
-#####################
-bank = 1000
-#define the deck of cards
-cards = ["ace"] * 4 + ["jack"] * 4 + ["queen"] * 4 + ["king"] * 4 + list(range(2, 11)) * 4
-#define and set all counters to 0
-card_counter_player = 0
-card_counter_1_player = 0
-card_counter_dealer = 0
-card_counter_dealer_1 = 0
-ace_counter_player = 0
-ace_counter_dealer = 0
-dealer_check = 0
-#set all the card variables to empty
-players_cards = ""
-dealers_cards = ""
-#set all the bust checks to false
-bust_check_player = False
-bust_check_dealer = False
-#####################
+import random
 
-def main():
-    print("Welcome to BlackJack")
-    print("You start with $1000")
+# Constants for the game
+INITIAL_BANK = 1000
+
+def create_deck():
+    """Creates and shuffles a new deck for the round."""
+    deck = ["ace"] * 4 + ["jack"] * 4 + ["queen"] * 4 + ["king"] * 4 + list(range(2, 11)) * 4
+    random.shuffle(deck)
+    return deck
+
+def calculate_hand(hand):
+    """Calculates the total value of a hand, adjusting aces as needed."""
+    total = 0
+    ace_count = hand.count("ace")
+    for card in hand:
+        if isinstance(card, int):
+            total += card
+        elif card in ["jack", "queen", "king"]:
+            total += 10
+        else:  # card is an ace
+            total += 11
+    # Adjust for aces if total is over 21
+    while total > 21 and ace_count > 0:
+        total -= 10
+        ace_count -= 1
+    return total
+
+def stake(bank):
+    """Asks the player to place a bet and updates the bank accordingly."""
     while True:
-        Stake()
-        deal()
-        ace_check()
-        card_counter()
-        bust_check_player()
-        bust_check_dealer()
-        player_turn()
-        dealer_turn()
+        try:
+            bet = int(input(f"You have ${bank}. How much would you like to bet? "))
+            if 0 < bet <= bank:
+                bank -= bet
+                return bank, bet
+            else:
+                print(f"Invalid bet amount. You must bet between $1 and ${bank}.")
+        except ValueError:
+            print("Please enter a valid number.")
 
+def deal(deck):
+    """Deals two cards each to the player and the dealer from the deck."""
+    players_cards = [deck.pop(), deck.pop()]
+    dealers_cards = [deck.pop(), deck.pop()]
+    print(f"Your cards: {', '.join(map(str, players_cards))}")
+    print(f"Dealer's visible card: {dealers_cards[0]}")
+    return players_cards, dealers_cards
 
-
-def Stake():
-    global bank
-    global bet
-    #tell user their bank balance and ask for their bet
-    bet = input(f"Your current balance is ${bank}. What is your bet")
-    if bet == int or float:
-        bank = bank - bet
-    else:
-    #make sure it is a valid number
-        print("Please enter a valid number")
-        Stake()
-def deal():
-    global players_cards
-    global dealers_cards
-    random.shuffle(cards)   
-    players_cards = (", ".join(str(players_cards) for card in random.sample(cards, 2)))
-    dealer_cards = (", ".join(str(dealer_cards) for card in random.sample(cards, 2)))
-    print(f"Your cards are {players_cards}")
-    print(f"The dealers card is {dealer_cards[0]}")
-def ace_check():
-    ace_counter_dealer = False
-    ace_counter_player = False
-    for _ in players_cards:
-        if _ == "ace":
-            ace_counter_player = True
-    for _ in dealers_cards:
-        if _ == "ace":
-            ace_counter_dealer = True
-def card_counter():
-    global card_counter_player
-    global card_counter_1_player
-    global card_counter_dealer
-    global card_counter_dealer_1
-    #define all the variables as 0
-    card_counter_player = 0
-    card_counter_1_player = 0
-    card_counter_dealer = 0
-    card_counter_dealer_1 = 0
-    #check if there is an ace in the players hand add 1 to the counter and 11 to the other counter
-    for _ in players_cards:
-        if ace_counter_player == True:
-            card_counter_1_player + 11
-            card_counter_player + 1
-    #check if there is a str in the players hand and add 10 to the counters
-        elif ace_counter_player == False and _ == str:
-            card_counter_1_player + 10
-            card_counter_player + 10
-    #if there is no ace or str add the value of the card to the counter
-        else:
-            card_counter_player + _
-            card_counter_1_player + _
-    for _ in ace_counter_dealer:
-    #check if there is an ace in the dealers hand add 1 to the counter and 11 to the other counter
-        if ace_counter_dealer == True:
-            card_counter_dealer_1 + 11
-            card_counter_dealer + 1
-    #check if there is a str in the dealers hand and add 10 to the counters
-        elif ace_counter_dealer == False and _ == str:
-            card_counter_dealer_1 + 10
-            card_counter_dealer + 10
-    #if there is no ace or str add the value of the card to the counter
-        else:
-            card_counter_dealer + _
-            card_counter_dealer_1 + _
-def bust_check_player():
-    global bust_check_player
-    global card_counter_player
-    global card_counter_1_player
-    #set the bust check to false
-    bust_check_player = False
-    #check if the player has gone bust
-    if card_counter_1_player > 21:
-        if card_counter_player > 21:
-            print("You have gone bust")
-            bust_check_player = True
-        else: 
-            bust_check_player = False
-    else:
-        bust_check_player = False
-
-def bust_check_dealer():
-    global bust_check_dealer
-    global card_counter_dealer
-    global card_counter_dealer_1
-    #set the bust check to false
-    bust_check_dealer = False
-    #check if the dealer has gone bust
-    if card_counter_dealer_1 > 21:
-        if card_counter_dealer > 21:
-            print("The dealer has gone bust")
-            bust_check_dealer = True
-        else:
-            bust_check_dealer = False
-    else:
-        bust_check_dealer = False
-
-def player_turn():
-    global players_cards
-    global card_counter_player
-    global card_counter_1_player
-    global bust_check_player
+def player_turn(players_cards, deck):
+    """Simulates the player's turn. Player chooses 'hit' or 'stand'."""
+    bust = False
     while True:
-        player_choice = input("Do you want to hit or stand? ").lower().strip()
-        if player_choice == "hit":
-            new_card = random.choice(cards)
-            players_cards.append(new_card)
-            print(f"You drew a {new_card}. Your cards are now: {', '.join(map(str, players_cards))}")
-            card_counter()  # Update the card count
-            bust_check_player()  # Check if the player has busted
-            if bust_check_player:
-                print("You lost this round.")
-                break
-        elif player_choice == "stand":
+        total = calculate_hand(players_cards)
+        print(f"Your current total: {total}")
+        if total > 21:
+            print("You have gone bust!")
+            bust = True
+            break
+        action = input("Do you want to 'hit' or 'stand'? ").lower()
+        if action == "hit":
+            card = deck.pop()  # draw next card from the deck
+            players_cards.append(card)
+            print(f"You drew {card}. Your cards: {', '.join(map(str, players_cards))}")
+        elif action == "stand":
             print("You chose to stand.")
             break
-        else:
-            print("Invalid choice, please choose 'hit' or 'stand'.")
-def dealer_turn():
-    global dealers_cards
-    global card_counter_dealer
-    global card_counter_dealer_1
-    global dealer_check
-    print(f"The dealers cards are {dealers_cards}")
-    while dealer_check == 0:
-        if card_counter_dealer_1 <= card_counter_1_player:
-            if card_counter_dealer_1 < 17:
-                new_card = random.choice(cards)
-                dealers_cards.append(new_card)
-                card_counter()
-                print(f"The dealer drew a {new_card}. The dealers cards are now: {', '.join(map(str, dealers_cards))}")
-            bust_check_dealer()
-        elif card_counter_dealer_1 > card_counter_1_player:
-            print("The dealer won this round.")
+    return players_cards, bust
+
+def dealer_turn(dealers_cards, deck):
+    """Simulates the dealer's turn, drawing until reaching at least 17."""
+    bust = False
+    print(f"Dealer's full hand: {', '.join(map(str, dealers_cards))}")
+    while calculate_hand(dealers_cards) < 17:
+        card = deck.pop()
+        dealers_cards.append(card)
+        print(f"Dealer drew {card}. Dealer's cards: {', '.join(map(str, dealers_cards))}")
+        if calculate_hand(dealers_cards) > 21:
+            print("The dealer has gone bust!")
+            bust = True
             break
-main()
+    print(f"Dealer's final total: {calculate_hand(dealers_cards)}")
+    return dealers_cards, bust
+
+def evaluate_winner(players_cards, dealers_cards, bet, player_bust, dealer_bust, bank):
+    """Compares hands and updates the bank based on the outcome."""
+    player_total = calculate_hand(players_cards)
+    dealer_total = calculate_hand(dealers_cards)
+    
+    if player_bust:
+        print("You lost your bet.")
+    elif dealer_bust or player_total > dealer_total:
+        print("You win!")
+        bank += bet * 2
+    elif player_total == dealer_total:
+        print("It's a tie! Your bet is returned.")
+        bank += bet
+    else:
+        print("Dealer wins.")
+    return bank
+
+def main():
+    bank = INITIAL_BANK
+    print("Welcome to BlackJack!")
+    print(f"You start with ${bank}")
+    
+    # Main game loop
+    while bank > 0:
+        # Create a new deck for the round
+        deck = create_deck()
+        
+        # Reset round-specific flags
+        player_bust = False
+        dealer_bust = False
+
+        bank, bet = stake(bank)
+        players_cards, dealers_cards = deal(deck)
+        players_cards, player_bust = player_turn(players_cards, deck)
+        if not player_bust:
+            dealers_cards, dealer_bust = dealer_turn(dealers_cards, deck)
+        bank = evaluate_winner(players_cards, dealers_cards, bet, player_bust, dealer_bust, bank)
+        print(f"Your new balance is ${bank}\n")
+    
+    print("Game over! You're out of money.")
+
+if __name__ == "__main__":
+    main()
